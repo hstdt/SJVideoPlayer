@@ -1662,6 +1662,10 @@ typedef struct _SJPlayerControlInfo {
 }
 - (void)vc_viewDidDisappear {
     [self.viewControllerManager viewDidDisappear];
+    // TDT: 如果非用户暂停的，通过这个代码可以更好地继续播放。否则重新进入页面，由于isScrollAppeared为YES而无法自动重播。
+    if (![self isUserPaused]) {
+        _controlInfo->scrollControl.isScrollAppeared = NO;
+    }
     [self pause];
 }
 - (BOOL)vc_prefersStatusBarHidden {
@@ -2312,13 +2316,13 @@ typedef struct _SJPlayerControlInfo {
     }
     
     if ( _playbackController.isPlayed ) {
-        if ( !self.viewControllerManager.isViewDisappeared ) {
+//        if ( !self.viewControllerManager.isViewDisappeared ) { // TDT: 没必要的判断，妨碍了自动播放
             if ( self.isPlayOnScrollView ) {
                 if ( _controlInfo->scrollControl.resumePlaybackWhenScrollAppeared ) {
                     [self play];
                 }
             }
-        }
+//        }
     }
     
     if ( superview && self.view.superview != superview ) {
